@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Title</title>
+	<style>
+		*{padding:0;margin:0; font-family: "Proxima Nova","proxima-nova","Helvetica Neue",Helvetica,Arial,sans-serif !important;}
+		html body{overflow: hidden;}
+		body{background:#ccc;}
+		.box{width:140px; height:200px; -webkit-transform-style:preserve-3d; -webkit-transform: perspective(800px) rotateY(0deg) rotateX(0deg); position:relative; margin:400px auto;}
+		.box span{width:140px; height:200px; position: absolute; background:deepskyblue; font-size:20px;
+			text-align: center; line-height:200px; color:white;}
+	</style>
+	<script>
+		function r2n(n){
+			return n*Math.PI/180
+		}
+		window.onload=function(){
+			var oBox=document.getElementsByClassName('box')[0];
+			var aS=document.getElementsByTagName('span');
+			for(var i=0;i<aS.length;i++){
+				aS[i].style.WebkitTransition='1s all ease '+(aS.length-i)*.1+'s';
+				aS[i].style.WebkitTransform='rotateY('+i*360/aS.length+'deg)'+' translateZ(500px) '
+			}
+			var pos=[];
+			var x=0;
+			var y=0;
+			var timer=null;
+			var timer2=null;
+			document.onmousedown=function(ev){
+				timer=setInterval(function(){
+					pos[0]=pos[2];
+					pos[1]=pos[3];
+					pos[2]=x;
+					pos[3]=y;
+				},30);
+				var disx=ev.pageX-x;
+				var disy=ev.pageY-y;
+				document.onmousemove=function(ev){
+					x=ev.pageX-disx;
+					y=ev.pageY-disy;
+					oBox.style.WebkitTransform=' perspective(800px)'+' rotateY('+x/3+'deg)'+'rotateX('+-y/3+'deg)';
+				};
+				document.onmouseup=function(){
+					clearInterval(timer);
+					var speedx=pos[2]-pos[0];
+					var speedy=pos[3]-pos[1];
+					timer2=setInterval(function(){
+						x+=speedx;
+						y+=speedy;
+						oBox.style.WebkitTransform=' perspective(800px)'+' rotateY('+x/3+'deg)'+'rotateX('+-y/3+'deg)';
+						speedx*=0.94;
+						speedy*=0.94;
+						if(Math.abs(speedx)<1)speedx=0;
+						if(Math.abs(speedy)<1)speedy=0;
+						if(speedx==0&&speedy==0){
+							clearInterval(timer2)
+						}
+					},30);
+					document.onmousemove=null;
+					document.onmouseup=null;
+				}
+			};
+			return false
+		}
+	</script>
+</head>
+<body>
+<div class="box">
+	<span>1</span>
+	<span>2</span>
+	<span>3</span>
+	<span>4</span>
+	<span>5</span>
+	<span>6</span>
+	<span>7</span>
+	<span>8</span>
+	<span>9</span>
+	<span>10</span>
+	<span>11</span>
+	<span>12</span>
+</div>
+</body>
+</html>

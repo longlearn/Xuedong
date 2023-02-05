@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>自动轮播图</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+		}
+
+		.box {
+			width: 500px;
+			height: 500px;
+			margin: 30px auto;
+			position: relative;
+			border: 1px solid #ccc;
+			overflow: hidden;
+		}
+
+		/* 轮播图列表 */
+		.box .img-list {
+			width: 4000px;
+			height: 500px;
+
+			display: flex;
+			list-style: none;
+
+			position: absolute;
+			left: 0;
+			top: 0;
+		}
+
+		.box .img-list img {
+			width: 500px;
+			height: 500px;
+
+			/* 防止选中 */
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			-khtml-user-select: none;
+			-ms-user-select: none;
+		}
+
+		/* 左右按钮 */
+		.box .btn {
+			width: 30px;
+			height: 60px;
+			background-color: rgba(184, 184, 184, 0.3);
+
+			position: absolute;
+			top: 50%;
+			margin-top: -30px;
+
+			line-height: 60px;
+			text-align: center;
+			font-size: 30px;
+			color: aliceblue;
+
+			/* 防止选中 */
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			-khtml-user-select: none;
+			-ms-user-select: none;
+		}
+
+		.box .btn:hover {
+			background-color: rgba(156, 158, 158, 0.6);
+			cursor: pointer;
+			transition: all 0.5s;
+		}
+
+		.box .left-btn {
+			left: 0;
+		}
+
+		.box .right-btn {
+			right: 0;
+		}
+
+		/* 底部圆点 */
+		.box .cir-list {
+			width: 200px;
+			height: 10px;
+			position: absolute;
+			bottom: 5px;
+			left: 50%;
+			margin-left: -100px;
+
+			display: flex;
+			justify-content: space-around;
+			align-items: center;
+
+			list-style: none;
+		}
+
+		.box .cir-list li {
+			width: 10px;
+			height: 10px;
+			background-color: aliceblue;
+			border-radius: 50%;
+		}
+
+		.box .cir-list li.change {
+			background-color: rgb(181, 207, 229);
+			width: 30px;
+			height: 8px;
+			border-radius: 20%;
+			transition: all 0.5s;
+		}
+	</style>
+</head>
+
+<body>
+<div class="box" id="box">
+	<!-- 轮播图片列表 -->
+	<ul class="img-list" id="imgList">
+		<li><img src="./9.JPG" alt="" draggable="false"></li>
+		<li><img src="./2.JPG" alt="" draggable="false"></li>
+		<li><img src="./3.JPG" alt="" draggable="false"></li>
+		<li><img src="./4.JPG" alt="" draggable="false"></li>
+		<li><img src="./5.JPG" alt="" draggable="false"></li>
+		<li><img src="./6.JPG" alt="" draggable="false"></li>
+		<li><img src="./7.JPG" alt="" draggable="false"></li>
+		<li><img src="./8.JPG" alt="" draggable="false"></li>
+		<li><img src="./1.JPG" alt="" draggable="false"></li>
+		<li><img src="./9.JPG" alt="" draggable="false"></li>
+	</ul>
+	<!-- 左右按钮 -->
+	<div class="left-btn btn" id="leftBtn">&lt;</div>
+	<div class="right-btn btn" id="rightBtn">&gt;</div>
+	<!-- 底部圆点列表 -->
+	<ul class="cir-list" id="cirList">
+		<li class="change"></li>
+		<li></li>
+		<li></li>
+		<li></li>
+		<li></li>
+		<li></li>
+		<li></li>
+	</ul>
+</div>
+
+
+<script type="text/javascript" src="js/jquery.js"></script>
+<script>
+	// 获取元素
+	let $box = $("#box");
+	let $imgList = $("#imgList");
+	let $leftBtn = $("#leftBtn");
+	let $rightBtn = $("#rightBtn");
+	let $cirList = $("#cirList li");
+
+
+	let idx = 0;
+	let width = $box.width();
+	let time = 1000;
+	let imgCount = $imgList.children().length - 1;
+
+	// 避免动画执行过程中 再次触发动画 设置lock
+	let lock = true;
+
+
+	/* 点击右按钮 */
+	$rightBtn.click(function () {
+		// 上锁
+		if (!lock) {
+			return;
+		}
+		lock = false;
+
+		idx++;
+		// 图片切换
+		$imgList.animate({ left: -width * idx }, time, function () {
+			if (idx >= imgCount) {
+				$imgList.css("left", 0);
+				idx = 0;
+			}
+
+			console.log(idx, this);
+			lock = true; // 开锁
+		})
+		// 底部圆点改变
+		cirChange.call($cirList[idx >= imgCount ? 0 : idx]);
+	})
+
+
+	/* 点击左按钮 */
+	$leftBtn.click(function () {
+		// 上锁
+		if (!lock) {
+			return;
+		}
+		lock = false;
+
+		idx--;
+		if (idx < 0) {
+			$imgList.css("left", -width * imgCount);
+			idx = imgCount - 1;
+		}
+		// 图片切换
+		$imgList.animate({ left: -width * idx }, time, function () {
+			console.log(idx, this);
+			lock = true; // 开锁
+		})
+		// 底部圆点改变
+		cirChange.call($cirList[idx]);
+	})
+
+	/* 点击小圆点 */
+	$cirList.click(function () {
+		// 上锁
+		if (!lock) {
+			return;
+		}
+		lock = false;
+
+		// .call()传参改变函数的this
+		cirChange.call(this);
+		// 改变idx
+		idx = $(this).index();
+		// 图片切换
+		$imgList.animate({ left: -width * idx }, time, function () {
+			console.log(idx, this);
+			lock = true; // 开锁
+		})
+	})
+
+
+	/* 底部圆点改变 函数 */
+	function cirChange() {
+		$(this).addClass("change").siblings().removeClass("change");
+	}
+
+
+	/* 自动轮播 */
+	let autotimer = setInterval(function () {
+		$rightBtn.click();
+	}, 2000)
+
+
+	/* 鼠标滑入 自动轮播停止 */
+	$box.mouseover(function () {
+		clearInterval(autotimer);
+	})
+	$box.mouseleave(function () {
+		autotimer = setInterval(function () {
+			$rightBtn.click();
+		}, time * 2)
+	})
+
+</script>
+</body>
+
+</html>
